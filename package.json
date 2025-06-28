@@ -1,0 +1,17 @@
+{
+  "name": "birthday-celebration-website",
+  "version": "1.0.0",
+  "description": "A birthday celebration website with animations and slideshow",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "start": "npx serve . -p 3000",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": ["birthday", "celebration", "website", "html", "css", "javascript"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Celebration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Landing Screen -->
+    <div id="landing-screen" class="screen active">
+        <div class="landing-content">
+            <h1 class="welcome-message">Click to Begin 🎉</h1>
+            <button id="start-btn" class="start-button">Start Celebration</button>
+        </div>
+        <div class="balloons">
+            <div class="balloon balloon-1"></div>
+            <div class="balloon balloon-2"></div>
+            <div class="balloon balloon-3"></div>
+            <div class="balloon balloon-4"></div>
+            <div class="balloon balloon-5"></div>
+        </div>
+    </div>
+
+    <!-- Celebration Screen -->
+    <div id="celebration-screen" class="screen">
+        <div class="confetti-container" id="confetti-container"></div>
+        <div class="celebration-content">
+            <h1 id="birthday-message" class="birthday-message">HAPPY BIRTHDAY TO YOU! 🎂</h1>
+            <div class="slideshow-container">
+                <div class="slideshow" id="slideshow">
+                    <!-- Images will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+        <div class="balloons celebration-balloons">
+            <div class="balloon balloon-1"></div>
+            <div class="balloon balloon-2"></div>
+            <div class="balloon balloon-3"></div>
+            <div class="balloon balloon-4"></div>
+            <div class="balloon balloon-5"></div>
+            <div class="balloon balloon-6"></div>
+        </div>
+        <audio id="birthday-song" loop>
+            <source src="song.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
