@@ -29,41 +29,31 @@ function setupEventListeners() {
 
 // Detect available images in the images folder
 async function detectAvailableImages() {
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    const maxImages = 50; // Check up to 50 images
-    
-    // Common naming patterns to check
-    const namingPatterns = [
-        (i) => `${i}`, // 1, 2, 3...
-        (i) => `image${i}`, // image1, image2...
-        (i) => `photo${i}`, // photo1, photo2...
-        (i) => `pic${i}`, // pic1, pic2...
-        (i) => `img${i}`, // img1, img2...
-        (i) => `${i.toString().padStart(2, '0')}`, // 01, 02, 03...
-        (i) => `image${i.toString().padStart(2, '0')}`, // image01, image02...
-        (i) => `photo${i.toString().padStart(2, '0')}`, // photo01, photo02...
+    // Direct list of available images - simpler and more reliable
+    const imageFiles = [
+        'images/1.jpeg',
+        'images/2.jpeg', 
+        'images/3.jpeg',
+        'images/4.png',
+        'images/5.jpeg',
+        'images/6.jpeg',
+        'images/7.jpeg'
     ];
     
-    for (let i = 1; i <= maxImages; i++) {
-        for (const pattern of namingPatterns) {
-            for (const ext of imageExtensions) {
-                const filename = `${pattern(i)}.${ext}`;
-                const imagePath = `images/${filename}`;
-                
-                if (await imageExists(imagePath)) {
-                    availableImages.push(imagePath);
-                    break; // Found image for this number, move to next
-                }
-            }
-            if (availableImages.length >= i) break; // Found image for this number
+    // Verify each image exists and add to available images
+    for (const imagePath of imageFiles) {
+        if (await imageExists(imagePath)) {
+            availableImages.push(imagePath);
         }
     }
     
     totalImages = availableImages.length;
+    console.log(`Found ${totalImages} images:`, availableImages);
     
     if (totalImages > 0) {
         createImageSlides();
     } else {
+        console.log('No images found, using placeholders');
         createPlaceholderImages();
     }
 }
@@ -72,14 +62,27 @@ async function detectAvailableImages() {
 function imageExists(src) {
     return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
+        img.onload = () => {
+            console.log(`Image exists: ${src}`);
+            resolve(true);
+        };
+        img.onerror = () => {
+            console.log(`Image not found: ${src}`);
+            resolve(false);
+        };
+        // Add a timeout to prevent hanging
+        setTimeout(() => {
+            console.log(`Image check timeout: ${src}`);
+            resolve(false);
+        }, 5000);
         img.src = src;
     });
 }
 
 // Create slides with actual images
 function createImageSlides() {
+    console.log('Creating slides for images:', availableImages);
+    
     availableImages.forEach((imagePath, index) => {
         const slide = document.createElement('div');
         slide.className = 'slide';
@@ -89,17 +92,20 @@ function createImageSlides() {
         img.style.cssText = `
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             object-position: center;
+            background: #f0f0f0;
         `;
         img.alt = `Birthday photo ${index + 1}`;
         
         // Add loading placeholder
         img.onload = () => {
+            console.log(`Successfully loaded image: ${imagePath}`);
             slide.style.background = 'none';
         };
         
         img.onerror = () => {
+            console.error(`Failed to load image: ${imagePath}`);
             // Fallback to placeholder if image fails to load
             slide.style.background = `linear-gradient(45deg, 
                 hsl(${(index * 25) % 360}, 70%, 60%), 
@@ -126,6 +132,8 @@ function createImageSlides() {
         if (index === 0) slide.classList.add('active');
         slideshow.appendChild(slide);
     });
+    
+    console.log(`Created ${availableImages.length} image slides`);
 }
 
 // Create placeholder images for demo (fallback)
@@ -161,8 +169,12 @@ function createPlaceholderImages() {
 
 // Start Celebration
 function startCelebration() {
-    // Update birthday message with friend's name
-    birthdayMessage.textContent = `HAPPY BIRTHDAY TO YOU, ${friendName.toUpperCase()}! 🎂`;
+    console.log('Starting celebration...');
+    console.log(`Total images available: ${totalImages}`);
+    
+    // Update birthday message with friend's name and special highlighting
+    const nameHighlighted = `<span class="highlight-name">${friendName.toUpperCase()}</span>`;
+    birthdayMessage.innerHTML = `HAPPY BIRTHDAY TO YOU, ${nameHighlighted}! 🎂`;
     
     // Switch screens
     landingScreen.classList.remove('active');
@@ -170,24 +182,35 @@ function startCelebration() {
         celebrationScreen.classList.add('active');
         startSlideshow();
         createConfetti();
+        createBirthdayDecorations();
         playAudio();
     }, 800);
 }
 
 // Slideshow Functions
 function startSlideshow() {
+    console.log(`Starting slideshow with ${totalImages} images`);
     if (totalImages > 1) {
         slideInterval = setInterval(nextSlide, 3000); // 3 seconds per slide
+    } else if (totalImages === 1) {
+        console.log('Only one image available, no slideshow needed');
+    } else {
+        console.log('No images available for slideshow');
     }
 }
 
 function nextSlide() {
     const slides = document.querySelectorAll('.slide');
-    if (slides.length === 0) return;
+    if (slides.length === 0) {
+        console.log('No slides found');
+        return;
+    }
     
+    console.log(`Moving from slide ${currentSlide} to next slide`);
     slides[currentSlide].classList.remove('active');
     currentSlide = (currentSlide + 1) % totalImages;
     slides[currentSlide].classList.add('active');
+    console.log(`Now showing slide ${currentSlide}`);
 }
 
 // Audio Functions
@@ -251,11 +274,130 @@ function createAudioButton() {
     document.body.appendChild(audioBtn);
 }
 
-// Confetti Animation
+// Birthday Decorations
+function createBirthdayDecorations() {
+    createSparkles();
+    createFireworks();
+    createFloatingHearts();
+    createBirthdayCakes();
+    createPartyHats();
+}
+
+function createSparkles() {
+    const sparkleCount = 15;
+    for (let i = 0; i < sparkleCount; i++) {
+        setTimeout(() => {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 2 + 's';
+            sparkle.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            
+            confettiContainer.appendChild(sparkle);
+            
+            setTimeout(() => {
+                if (sparkle.parentNode) {
+                    sparkle.parentNode.removeChild(sparkle);
+                }
+            }, 4000);
+        }, i * 200);
+    }
+}
+
+function createFireworks() {
+    const fireworkCount = 20;
+    for (let i = 0; i < fireworkCount; i++) {
+        setTimeout(() => {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.style.left = Math.random() * 100 + '%';
+            firework.style.top = Math.random() * 100 + '%';
+            firework.style.animationDelay = Math.random() * 3 + 's';
+            firework.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            
+            confettiContainer.appendChild(firework);
+            
+            setTimeout(() => {
+                if (firework.parentNode) {
+                    firework.parentNode.removeChild(firework);
+                }
+            }, 6000);
+        }, i * 300);
+    }
+}
+
+function createFloatingHearts() {
+    const heartCount = 10;
+    for (let i = 0; i < heartCount; i++) {
+        setTimeout(() => {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.textContent = '💖';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.bottom = '0px';
+            heart.style.animationDelay = Math.random() * 2 + 's';
+            heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            
+            confettiContainer.appendChild(heart);
+            
+            setTimeout(() => {
+                if (heart.parentNode) {
+                    heart.parentNode.removeChild(heart);
+                }
+            }, 8000);
+        }, i * 600);
+    }
+}
+
+function createBirthdayCakes() {
+    const cakeCount = 5;
+    for (let i = 0; i < cakeCount; i++) {
+        setTimeout(() => {
+            const cake = document.createElement('div');
+            cake.className = 'birthday-cake';
+            cake.textContent = '🎂';
+            cake.style.left = Math.random() * 90 + '%';
+            cake.style.top = Math.random() * 80 + '%';
+            cake.style.animationDelay = Math.random() * 2 + 's';
+            
+            confettiContainer.appendChild(cake);
+            
+            setTimeout(() => {
+                if (cake.parentNode) {
+                    cake.parentNode.removeChild(cake);
+                }
+            }, 10000);
+        }, i * 1000);
+    }
+}
+
+function createPartyHats() {
+    const hatCount = 3;
+    for (let i = 0; i < hatCount; i++) {
+        setTimeout(() => {
+            const hat = document.createElement('div');
+            hat.className = 'party-hat';
+            hat.style.left = (20 + i * 30) + '%';
+            hat.style.top = (10 + Math.random() * 20) + '%';
+            hat.style.animationDelay = Math.random() * 2 + 's';
+            
+            confettiContainer.appendChild(hat);
+            
+            setTimeout(() => {
+                if (hat.parentNode) {
+                    hat.parentNode.removeChild(hat);
+                }
+            }, 12000);
+        }, i * 1500);
+    }
+}
+
+// Enhanced Confetti Animation
 function createConfetti() {
-    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8'];
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#fd79a8', '#ff9800', '#9c27b0'];
     
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 80; i++) {
         setTimeout(() => {
             const confetti = document.createElement('div');
             confetti.className = 'confetti';
@@ -264,6 +406,21 @@ function createConfetti() {
             confetti.style.animationDelay = Math.random() * 3 + 's';
             confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
             
+            // Random shapes
+            const shapes = ['rect', 'circle', 'triangle'];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            
+            if (shape === 'circle') {
+                confetti.style.borderRadius = '50%';
+            } else if (shape === 'triangle') {
+                confetti.style.width = '0';
+                confetti.style.height = '0';
+                confetti.style.borderLeft = '5px solid transparent';
+                confetti.style.borderRight = '5px solid transparent';
+                confetti.style.borderBottom = `10px solid ${colors[Math.floor(Math.random() * colors.length)]}`;
+                confetti.style.background = 'transparent';
+            }
+            
             confettiContainer.appendChild(confetti);
             
             // Remove confetti after animation
@@ -271,8 +428,8 @@ function createConfetti() {
                 if (confetti.parentNode) {
                     confetti.parentNode.removeChild(confetti);
                 }
-            }, 5000);
-        }, i * 100);
+            }, 6000);
+        }, i * 80);
     }
 }
 
